@@ -34,23 +34,7 @@ void main(void)
         if (SECF) /// * The following tasks are executed every second:
         {     
             SECF = 0;
-            //log_control_hex();
-            //if ((vbatav < vbatmax) && (vbusr > ivbusr)) vbusr -= 2;
-//            #if CONVERTER    
-//            if (vbatav < vbatmin)
-//            {
-//                STOP_CONVERTER();
-//                TRISC0 = 1;
-//            }
-//            #endif
-            display_value_u((uint16_t)second);
-            LINEBREAK;
-            display_value_u(vbus);
-            LINEBREAK;
-            display_value_u(vbusr);
-            LINEBREAK;
-            display_value_u(dc);
-            LINEBREAK;
+            log_control_hex();
         }       
 	}
 }
@@ -63,21 +47,6 @@ void __interrupt() ISR(void)
     
     if(TMR1IF)
     {
-        #if CONVERTER
-        TMR1H = 0xE1; //TMR1 Fosc/4= 8Mhz (Tosc= 0.125us)
-        TMR1L = 0x83; //TMR1 counts: 7805 x 0.125us = 975.625us
-        TMR1IF = 0; //Clear timer1 interrupt flag
-        vbus = read_ADC(VS_BUS); /// * Then, the ADC channels are read by calling the #read_ADC() function
-        vbat = read_ADC(VS_BAT); /// * Then, the ADC channels are read by calling the #read_ADC() function
-        ibat = (int16_t)(read_ADC(IS_BAT)); /// * Then, the ADC channels are read by calling the #read_ADC() function
-        //HERE 2154 is a hack to get 0 current
-        ibat = 2048 - ibat; ///If the #state is #CHARGE or #POSTCHARGE change the sign of the result  
-        if (conv){
-            control_loop(); /// -# The #control_loop() function is called*/
-            //if ((vbat >= vbatmax) && (vbusr < voc)) vbusr +=1; ///NEEDS CORRECTION
-        }
-        #endif
-        #if CONTROLLER
         TMR1H = 0xE1; //TMR1 Fosc/4= 8Mhz (Tosc= 0.125us)
         TMR1L = 0x83; //TMR1 counts: 7805 x 0.125us x 8 = 7805us
         TMR1IF = 0; //Clear timer1 interrupt flag
@@ -94,7 +63,6 @@ void __interrupt() ISR(void)
         i50 = read_ADC(I_PDU_50V);
         v33 = read_ADC(V_PDU_33V);
         i33 = read_ADC(I_PDU_33V);
-        #endif
         calculate_avg(); /// * Then, averages for the 250 values available each second are calculated by calling the #calculate_avg() function
         timing(); /// * Timing control is executed by calling the #timing() function         
     }
@@ -107,44 +75,17 @@ void __interrupt() ISR(void)
             RC1STAbits.CREN = 1; 
         }
         while(RCIF) recep = RC1REG; /// * Empty the reception buffer and assign its contents to the variable @p recep
-        #if CONTROLLER
         switch (recep)
         {
         case 0x63: /// * If @p recep received a @b "c", then:
-            STOP_CONVERTER(); /// -# Stop the converter by calling the #STOP_CONVERTER() macro.
-            RESET_TIME() 
-            TRISC0 = 1;                         /// * Set RC0 as input
-            vbusr = ivbusr;
+            STOP;
             break;
         case 0x73: /// * If @p recep received an @b "s", then:
-            START_CONVERTER(); /// -# Start the converter by calling the #START_CONVERTER() macro.
-            RESET_TIME() 
-            TRISC0 = 0; //MAYBE BPUT IT INSIDE START                        /// * Set RC0 as output
-            vbusr = ivbusr;
+            START;
             break;
         default:
             recep = 0;
         }
-        #endif
-        #if CONVERTER
-        switch (recep)
-        {
-        case 0x63: /// * If @p recep received a @b "c", then:
-            STOP_CONVERTER(); /// -# Stop the converter by calling the #STOP_CONVERTER() macro.
-            RESET_TIME() 
-            //TRISC0 = 1;                         /// * Set RC0 as input
-            vbusr = ivbusr;
-            break;
-        case 0x73: /// * If @p recep received an @b "s", then:
-            START_CONVERTER(); /// -# Start the converter by calling the #START_CONVERTER() macro.
-            RESET_TIME() 
-            //TRISC0 = 0; //MAYBE BPUT IT INSIDE START                        /// * Set RC0 as output
-            vbusr = ivbusr;
-            break;
-        default:
-            recep = 0;
-        }
-        #endif
     }  
    
 }

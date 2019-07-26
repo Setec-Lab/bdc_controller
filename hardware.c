@@ -25,13 +25,6 @@ void initialize()
     OSCCONbits.IRCF = 0b1111; /// * Set clock to 32MHz (with PLL)
     OSCCONbits.SCS = 0b00; /// * Clock determined by FOSC<2:0> in Configuration Words
     OSCCONbits.SPLLEN = 1; /// * Enable PLL. According to Errata this shall not be done in the Configuration Words
-    /** @b ENABLE @b OUPUT*/
-#if CONVERTER
-    TRISA4 = 0; /// * Set RA4 as output. Driver enable (DR_EN)
-    ANSA4 = 0; /// * RA4 as digital
-    WPUA4 = 0; /// * Weak pull up deactivated
-    RA4 = 0; /// * Start disabled
-#endif
     /** @b TIMER 1 for control and measuring loop using interruption*/
     /* Preload TMR1 register pair for 1us overflow*/
     /* T1OSCEN = 1, nT1SYNC = 1, TMR1CS = 0 and TMR1ON = 1*/
@@ -41,44 +34,10 @@ void initialize()
     TMR1GE = 0;      //Dont care about gate
     TMR1CS0 = 0;       
     TMR1CS1 = 0;    //FOSC/4
-#if CONVERTER
-    T1CKPS0 = 0;
-    T1CKPS1 = 0;    // 1 millisecond
-#endif
-#if CONTROLLER
     T1CKPS0 = 1;
     T1CKPS1 = 1;    // 8 milliseconds
-#endif
     TMR1H = 0xE1;   //TMR1 Fosc/4= 8Mhz (Tosc= 0.125us)
     TMR1L = 0x83;   //TMR1 counts: 7805 x 0.125us = 0.97562ms
-#if CONVERTER
-    /** @b PSMC/PWM @b SETTINGS*/
-    /** Programmable switch mode control (PSMC)*/
-    PSMC1CON = 0x00; /// * Clear PSMC1 configuration to start
-    PSMC1MDL = 0x00; /// * No modulation
-    PSMC1CLK = 0x01; /// * Driven by 64MHz PLL system clock
-    PSMC1PRH = 0x01; /// * Set period high register to 0x01
-    PSMC1PRL = 0xFF; /// * Set period low register to 0xFF
-    /** 511 + 1 clock cycles for period that is 8us (125KHz)*/
-    /** This set the PWM with 9 bit of resolution*/
-    /** Duty cycle*/
-    PSMC1DCH = 0x00;                    // * Set duty cycle high register to 0x00   
-    PSMC1DCL = 0x00;                    // * Set duty cycle low register to 0x00
-    /* Duty cycle starts in 0 */  
-    /** Phase or rising event*/
-    PSMC1PHH = 0x00;                    /// * Rising event starts from the beginning
-    PSMC1PHL = 0x00;                    /// * Rising event starts from the beginning
-    P1STRA = 1;            /// * Single PWM activated in PSMC1A (RC0)
-    P1POLA = 0;            /// * Active high (RC0)
-    P1OEA = 1;             /// * PSMC activated in PSMC1A (RC0)
-    P1PRST = 1;            /// * Period event occurs when PSMC1TMR = PSMC1PR
-    P1PHST = 1;            /// * Rising edge event occurs when PSMC1TMR = PSMC1PH
-    P1DCST = 1;            /// * Falling edge event occurs when PSMC1TMR = PSMC1DC
-    PSMC1CON = 0x80;                    /// * Enable|Load Buffer|Dead band disabled|Single PWM
-    //PSMC1TIE = 1;                       //Enable interrupts for Time Based 
-    WPUC0 = 0;                          /// * Disable WPU for RC0.
-    TRISC0 = 0;                         /// * Set RC0 as input for now
-#endif
     /** @b ADC*/
     /** ADC INPUTS*///check this after final design
     TRISA0 = 1; /// * RA0
@@ -90,7 +49,6 @@ void initialize()
     TRISA2 = 1; /// * RA2
     ANSA2 = 1; /// * RA2 analog
     WPUA2 = 0; /// * RA2 weak pull up deactivated
-#if CONTROLLER
     TRISB0 = 1; /// * RB0
     ANSB0 = 1; /// * RB0 analog
     WPUB0 = 0; /// * RB0 weak pull up deactivated
@@ -103,7 +61,6 @@ void initialize()
     TRISB4 = 1; /// * RB4
     ANSB4 = 1; /// * RB4 analog
     WPUB4 = 0; /// * RB4 weak pull up deactivated
-#endif
     /** Configs*/
     ADCON0bits.ADRMD = 0; /// * 12 bits result
     ADCON1bits.ADCS = 0b010; /// * Clock selected as FOSC/32
@@ -143,141 +100,6 @@ void initialize()
     TXIE = 0; /// * Disable UART transmission interrupts
 }
 
-///**@brief This function is the PI control loop
-//*/
-//void control_loop()
-//{   
-//    pid(vbus, vbusr, &intacum, &dc);  /// * The #pid() function is called with @p feedback = #v and @p setpoint = #vref
-//    set_DC(&dc); /// The duty cycle is set by calling the #set_DC() function
-//}
-///**@brief This function defines the PI controller
-//*  @param   feedback average of measured values for the control variable
-//*  @param   setpoint desire controlled output for the variable
-//*/
-//
-///**@brief This function defines the PI controller
-//*  @param   feedback average of measured values for the control variable
-//*  @param   setpoint desire controlled output for the variable
-//*/
-//void pid(uint16_t feedback, uint16_t setpoint, int24_t* acum, uint16_t* duty_cycle)
-//{ 
-//int16_t     er = 0; /// * Define @p er for calculating the error
-//int16_t     pi = 0; /// * Define @p pi for storing the PI compensator value
-//int16_t     prop = 0;
-//int16_t     inte = 0;
-//    er = (int16_t) (feedback - setpoint); /// * Calculate the error by substract the @p feedback from the @p setpoint and store it in @p er
-//    if(er > ERR_MAX) er = ERR_MAX; /// * Make sure error is never above #ERR_MAX
-//    if(er < ERR_MIN) er = ERR_MIN; /// * Make sure error is never below #ERR_MIN
-//    prop = er / KP; /// * Calculate #proportional component of compensator
-//	*acum += (int24_t) (er); /// * Calculate #integral component of compensator
-//    inte = (int16_t) (*acum /  ((int24_t) KI * COUNTER));
-//    pi = prop + inte; /// * Sum them up and store in @p pi*/
-//    if ((uint16_t)((int16_t)*duty_cycle + pi) >= DC_MAX){ /// * Make sure duty cycle is never above #DC_MAX
-//        *duty_cycle = DC_MAX;
-//    }else if ((uint16_t)((int16_t)*duty_cycle + pi) <= DC_MIN){ /// * Make sure duty cycle is never below #DC_MIN
-//        *duty_cycle = DC_MIN;
-//    }else{
-//        *duty_cycle = (uint16_t)((int16_t)*duty_cycle + pi); /// * Store the new value of the duty cycle with operation @code dc = dc + pi @endcode
-//    }   
-//}
-//
-///**@brief This function sets the desired duty cycle
-//*/
-//void set_DC(uint16_t* duty_cycle)
-//{
-///// This function can set the duty cycle from 0x0 to 0x1FF
-//    PSMC1DCL = *duty_cycle & 0x00FF; /// * Lower 8 bits of #dc are stored in @p PSMC1DCL
-//    PSMC1DCH = (*duty_cycle >> 8) & 0x01; /// * Higher 1 bit of #dc are stored in @p PSMC1DCH
-//    PSMC1CONbits.PSMC1LD = 1; /// * Set the load register. This will load all the setting as once*/
-//}
-
-/**@brief This function is the PI control loop
-*/
-void control_loop()
-{   
-    pid(vbus, vbusr);  /// * The #pid() function is called with @p feedback = #v and @p setpoint = #vref
-    set_DC(); /// The duty cycle is set by calling the #set_DC() function
-}
-/**@brief This function defines the PI controller
-*  @param   feedback average of measured values for the control variable
-*  @param   setpoint desire controlled output for the variable
-*/
-void pid(uint16_t feedback, uint16_t setpoint)
-{ 
-int16_t     er = 0; /// * Define @p er for calculating the error
-int16_t     pi = 0; /// * Define @p pi for storing the PI compesator value
-int16_t     prop = 0;
-int16_t     inte = 0;
-    er = (int16_t) (feedback - setpoint); /// * Calculate the error by substracting the @p feedback from the @p setpoint and store it in @p er
-    if(er > ERR_MAX) er = ERR_MAX; /// * Make sure error is never above #ERR_MAX
-    if(er < ERR_MIN) er = ERR_MIN; /// * Make sure error is never below #ERR_MIN
-    prop = er / KP; /// * Calculate #proportional component of compensator
-	intacum += (int24_t) (er); /// * Calculate #integral component of compensator
-    inte = (int16_t) (intacum /  ((int24_t) KI * COUNTER));
-    pi = prop + inte; /// * Sum them up and store in @p pi*/
-    if ((uint16_t)((int16_t)dc + pi) >= DC_MAX){ /// * Make sure duty cycle is never above #DC_MAX
-        dc = DC_MAX;
-    }else if ((uint16_t)((int16_t)dc + pi) <= DC_MIN){ /// * Make sure duty cycle is never below #DC_MIN
-        dc = DC_MIN;
-    }else{
-        dc = (uint16_t)((int16_t)dc + pi); /// * Store the new value of the duty cycle with operation @code dc = dc + pi @endcode
-    }   
-}
-/**@brief This function sets the desired duty cycle
-*/
-void set_DC()
-{
-/// This function can set the duty cycle from 0x0 to 0x1FF
-    PSMC1DCL = dc & 0x00FF; /// * Lower 8 bits of #dc are stored in @p PSMC1DCL
-    PSMC1DCH = (dc >> 8) & 0x01; /// * Higher 1 bit of #dc are stored in @p PSMC1DCH
-    PSMC1CONbits.PSMC1LD = 1; /// * Set the load register. This will load all the setting as once*/
-}
-
-
-/**@brief This function takes care of printing the test data using the UART
-*/
-void log_control()
-{
-/**The code in this function is only executed if the #log_on variable is set*/
-/**This function takes care of sending the logging data in pieces to avoid disturbing the control loop. 
-This problem can be avoided with the use of interruptions for the control loop; however this was not implemented
-and could be considered as some future improvement IT IS IMPLEMENTED NOW*/  
-vbusav = (uint16_t) ( ( ( vbusav * 5000.0 ) / 4096 ) + 0.5 );
-vbatav = (uint16_t) ( ( ( vbatav * 5000.0 ) / 4096 ) + 0.5 );
-ibatav = (uint16_t) ( ( ( ibatav * 2.5 * 5000 ) / 4096 ) + 0.5 ); 
-//if ( ibatav > 0 ) capap += (uint16_t) ( ibatav / 360 ) + 0.5; /// * Divide #iprom between 3600 and multiplied by 10 add it to #qprom to integrate the current over time
-    
-    if (log_on)
-    {
-                LINEBREAK;
-                display_value_u(minute);
-                UART_send_char(':'); /// * Send a colons character
-                if (second < 10) UART_send_char('0'); /// * If #second is smaller than 10 send a '0'
-                display_value_u((uint16_t) second);
-                UART_send_char(','); /// * Send a comma character
-                UART_send_string("vbusav:"); /// * Send a 'C'
-                display_value_u(vbusav);
-                UART_send_char(','); /// * Send a comma character
-                UART_send_string("vbatav:"); /// * Send an 'I'
-                display_value_u(vbatav);
-                UART_send_char(','); /// * Send a comma character
-                UART_send_string("ibatav:"); /// * Send an 'I'
-                display_value_s(ibatav);
-                UART_send_char(','); /// * Send a comma character
-                UART_send_string("vbusref:"); /// * Send a 'Q'
-                //display_value_u((uint16_t) (dc * 1.933125));
-                display_value_u(vbusr);
-                UART_send_char(','); /// * Send a comma character
-                UART_send_string("vbus:"); /// * Send a 'Q'
-                display_value_u(vbus);
-                UART_send_char(','); /// * Send a comma character
-                UART_send_string("dc:"); /// * Send a 'Q'
-                display_value_u((uint16_t) (dc * 1.933125));
-                UART_send_char('<'); /// * Send a '<'
-    }
-    if (!log_on) RESET_TIME(); /// If #log_on is cleared, call #RESET_TIME()
-}
-
 /**@brief This function takes care of printing the test data using the UART
 */
 void log_control_hex()
@@ -286,25 +108,6 @@ void log_control_hex()
 /**This function takes care of sending the logging data in pieces to avoid disturbing the control loop. 
 This problem can be avoided with the use of interruptions for the control loop; however this was not implemented
 and could be considered as some future improvement IT IS IMPLEMENTED NOW*/  
-#if CONVERTER
-vbusav = (uint16_t) ( ( ( vbusav * 5000.0 ) / 4096 ) + 0.5 );
-vbatav = (uint16_t) ( ( ( vbatav * 5000.0 ) / 4096 ) + 0.5 );
-ibatav = (int16_t) ( ( ( ibatav * 2.5 * 5000 ) / 4096 ) + 0.5 ); 
-//if ( ibatav > 0 ) capap += (uint16_t) ( ibatav / 360 ) + 0.5; /// * Divide #iprom between 3600 and multiplied by 10 add it to #qprom to integrate the current over time
-    
-    if (log_on)
-    {
-                HEADER;
-                UART_send_u16(minute);
-                UART_send_u16((uint16_t)second);
-                UART_send_u16(vbusav);
-                UART_send_u16(vbatav);
-                UART_send_u16(ibatav);
-                FOOTER;
-    }
-    if (!log_on) RESET_TIME(); /// If #log_on is cleared, call #RESET_TIME()
-#endif
-#if CONTROLLER
 vpvav = (uint16_t) ( ( ( vpvav * 5000.0 ) / 4096 ) + 0.5 ); //If I install an 845omh with a 158 ohm will be 5935.91 
 ipvav = (uint16_t) ( ( ( ipvav * 2.5 * 5000 ) / 4096 ) + 0.5 ); 
 iloav = (uint16_t) ( ( ( iloav * 2.5 * 5000 ) / 4096 ) + 0.5 );
@@ -329,8 +132,6 @@ i33av = (uint16_t) ( ( ( i33av * 5000.0 ) / 4096 ) + 0.5 );
                 FOOTER;
     }
     if (!log_on) RESET_TIME(); /// If #log_on is cleared, call #RESET_TIME()
-#endif
-
 }
 
 
@@ -367,27 +168,6 @@ void timing()
 */
 void calculate_avg()
 {
-#if CONVERTER
-    switch(count)
-    {
-        case COUNTER + 1: /// If #count = #COUNTER
-            vbusac = 0;
-            vbatac = 0;
-            ibatac = 0;
-            break;
-        case 0: /// If #count = 0
-            vbusav = ((vbusac >> 10) + ((vbusac >> 9) & 0x01)); /// * This is equivalent to vbusac / 1024 = vbusac / 2^10      
-            vbatav = ((vbatac >> 10) + ((vbatac >> 9) & 0x01)); /// * This is equivalent to vbatac / 1024 = vbatac / 2^10          
-            ibatav = ((ibatac >> 10) + ((ibatac >> 9) & 0x01)); /// * This is equivalent to ibatac / 1024 = ibatac / 2^10   
-            //ibatav = (int16_t)(ibatac / 1024.0); /// * This is equivalent to ibatac / 1024 = ibatac / 2^10   
-            break;
-        default: /// If #count is not any of the previous cases then
-            vbusac += (uint24_t) vbus; /// * Accumulate #vbus in #vbusac
-            vbatac += (uint24_t) vbat; /// * Accumulate #vbat in #vbatac
-            ibatac += (uint24_t) ibat; /// * Accumulate #ibat in #ibatac
-    }  
-#endif
-#if CONTROLLER
     switch(count)
     {
         case COUNTER + 1: /// If #count = #COUNTER
@@ -417,7 +197,6 @@ void calculate_avg()
             v33ac += (uint24_t) v33;
             i33ac += (uint24_t) i33;            
     }  
-#endif
 }
 
 void interrupt_enable()
@@ -502,19 +281,6 @@ void UART_send_u16(uint16_t number)
     TX1REG = number & 0x00FF; /// * Load the transmission buffer with @p bt
 }
 
-//void UART_send_i16(int16_t number)  
-//{
-//    while(0 == TXIF)
-//    {
-//    }/// * Hold the program until the transmission buffer is free
-//    TX1REG = (number >> 8) & 0xFF; /// * Load the transmission buffer with @p bt
-//    while(0 == TXIF)
-//    {
-//    }/// * Hold the program until the transmission buffer is free
-//    TX1REG = number & 0x00FF; /// * Load the transmission buffer with @p bt
-//}
-/**@brief This function calculate the averages
-*/
 void PAO(uint16_t pv_voltage, uint16_t pv_current, uint32_t* previous_power, char* previous_direction)
 {
     uint32_t new_power = 0;
