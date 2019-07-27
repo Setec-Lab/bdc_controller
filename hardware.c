@@ -293,13 +293,13 @@ void PAO(uint16_t pv_voltage, uint16_t pv_current, uint32_t* previous_power, cha
     {
         switch (*previous_direction)
         {
-            case 0x01:
-                *previous_direction = 0x02;
+            case 0x06:
+                *previous_direction = 0x07;
                 break;
             default:
-                *previous_direction = 0x01; //If the direction was decreasing or mantaining it should increase
+                *previous_direction = 0x06; //If the direction was decreasing or mantaining it should increase
         }
     }
-    else *previous_direction = 0x03; //mantain setpoint
+    else *previous_direction = 0x08; //mantain setpoint
     *previous_power = new_power;
 }
