@@ -86,8 +86,11 @@ void __interrupt() ISR(void)
         case 0x69: /// * If @p recep received an @b "i", then:
             DIRECTION(0x06);
             break;
-        case 0x64: /// * If @p recep received an @b "i", then:
+        case 0x64: /// * If @p recep received an @b "d", then:
             DIRECTION(0x07);
+            break;
+        case 0x72: /// * If @p recep received an @b "r", then:
+            DIRECTION(0x09);
             break;
         default:
             recep = 0;
