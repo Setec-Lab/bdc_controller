@@ -109,7 +109,7 @@ void log_control_hex()
 /**This function takes care of sending the logging data in pieces to avoid disturbing the control loop. 
 This problem can be avoided with the use of interruptions for the control loop; however this was not implemented
 and could be considered as some future improvement IT IS IMPLEMENTED NOW*/  
-vpvav = (uint16_t) ( ( ( vpvav * 5000.0 ) / 4096 ) + 0.5 ); //If I install an 845omh with a 158 ohm will be 5935.91 
+vpvav = (uint16_t) ( ( ( vpvav * 5935.0 ) / 4096 ) + 0.5 ); //If I install an 845omh with a 158 ohm will be 5935.91 
 ipvav = (uint16_t) ( ( ( ipvav * 2.5 * 5000 ) / 4096 ) + 0.5 ); 
 iloav = (uint16_t) ( ( ( iloav * 2.5 * 5000 ) / 4096 ) + 0.5 );
 v50av = (uint16_t) ( ( ( v50av * 5000.0 ) / 4096 ) + 0.5 );
