@@ -79,11 +79,12 @@ void __interrupt() ISR(void)
         {
         case 0x63: /// * If @p recep received a @b "c", then:
             STOP;
+            mppt=0;
             break;
         case 0x73: /// * If @p recep received an @b "s", then:
             RESET_TIME();
-            mppt=1;
             START;
+            mppt=1;
             break;
         case 0x69: /// * If @p recep received an @b "i", then:
             DIRECTION(0x06);
