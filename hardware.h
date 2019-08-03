@@ -74,7 +74,7 @@
 
 bool                                mppt = 0;
 uint32_t                            power = 0;
-char                                dir = 0; //0x01 increase 0x02 decrease 0x03 mantain
+char                                dir = 0x06; //0x01 increase 0x02 decrease 0x03 mantain
 // ADC values
 uint16_t                            vpv = 0;
 uint16_t                            ipv = 0;
