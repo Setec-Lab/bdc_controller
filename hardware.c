@@ -282,25 +282,21 @@ void UART_send_u16(uint16_t number)
     TX1REG = number & 0x00FF; /// * Load the transmission buffer with @p bt
 }
 
-void PAO(uint16_t pv_voltage, uint16_t pv_current, uint32_t* previous_power, char* direction)
+void PAO(uint16_t pv_voltage, uint16_t pv_current, uint32_t* power, char* direction)
 {
-    uint32_t new_power = 0;
+    uint32_t new_power;
     new_power =  (uint32_t)(pv_voltage * pv_current);
-    if (new_power > *previous_power)
-    {
-        //mantain direction
-    }
-    else if (new_power < *previous_power) 
+    if (new_power < *power) 
     {
         switch (*direction)
         {
             case 0x06:
                 *direction = 0x07;
                 break;
-            default:
-                *direction = 0x06; //If the direction was decreasing or mantaining it should increase
+            case 0x07:
+                *direction = 0x06; //If the direction was decreasing or maintaining it should increase
+                break;
         }
     }
-    else *direction = 0x08; //mantain setpoint
-    *previous_power = new_power;
+    *power = new_power;
 }
