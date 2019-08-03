@@ -82,6 +82,7 @@ void __interrupt() ISR(void)
             break;
         case 0x73: /// * If @p recep received an @b "s", then:
             RESET_TIME();
+            mppt=1;
             START;
             break;
         case 0x69: /// * If @p recep received an @b "i", then:
