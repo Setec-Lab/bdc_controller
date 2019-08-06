@@ -282,10 +282,10 @@ void UART_send_u16(uint16_t number)
     TX1REG = number & 0x00FF; /// * Load the transmission buffer with @p bt
 }
 
-void PAO(uint16_t pv_voltage, uint16_t pv_current, uint32_t* power, char* direction)
+void PAO(uint16_t pv_voltage, uint16_t pv_current, float* power, char* direction)
 {
-    uint32_t new_power;
-    new_power =  (uint32_t)(pv_voltage * pv_current);
+    float new_power;
+    new_power =  ((float)pv_voltage * pv_current);
     if (new_power < *power) 
     {
         switch (*direction)

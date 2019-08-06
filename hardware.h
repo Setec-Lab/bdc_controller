@@ -73,7 +73,7 @@
 #define		I_PV                    0b00000 //AN0 (RA0)  
 
 bool                                mppt = 0;
-uint32_t                            power = 0;
+float                               power = 0;
 char                                dir = 0x07; //0x06 increase 0x07 decrease 0x08 mantain
 // ADC values
 uint16_t                            vpv = 0;
@@ -131,7 +131,7 @@ char UART_get_char(void);
 void UART_send_string(const char* st_pt);
 void UART_send_u16(uint16_t number); 
 void timing(void);
-void PAO(uint16_t pv_voltage, uint16_t pv_current, uint32_t* previous_power, char* previous_direction);
+void PAO(uint16_t pv_voltage, uint16_t pv_current, float* previous_power, char* previous_direction);
 
 
 #define     LINEBREAK               {UART_send_char(0xA); UART_send_char(0xD);}

@@ -53,7 +53,7 @@ void __interrupt() ISR(void)
         vpv = read_ADC(V_BUS);
         ipv = read_ADC(I_PV);
         ipv = abs(ipv - 2048);
-        if (mppt){
+        if ( mppt && (ipv > 20) ){
             PAO(vpv, ipv, &power, &dir);
             DIRECTION(dir);
         }
