@@ -293,10 +293,11 @@ void PAO(uint16_t pv_voltage, uint16_t pv_current, float* power, char* direction
             case 0x06:
                 *direction = 0x07;
                 break;
+            case 0x08:
             case 0x07:
                 *direction = 0x06; //If the direction was decreasing or maintaining it should increase
                 break;
         }
-    }
+    }else if (new_power == *power) *direction = 0x08;
     *power = new_power;
 }
