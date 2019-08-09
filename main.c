@@ -53,10 +53,11 @@ void __interrupt() ISR(void)
         vpv = read_ADC(V_BUS);
         ipv = read_ADC(I_PV);
         ipv = abs(ipv - 2048);
-        if ( mppt && (ipv > 20) ){
+        if ( mppt )
+        if ( ipv > 20 ){
             PAO(vpv, ipv, &power, &dir);
             DIRECTION(dir);
-        }
+        }else DIRECTION(0x06);
         ilo = read_ADC(I_LOAD);
         ilo = abs(ilo - 2048);
         v50 = read_ADC(V_PDU_50V);
