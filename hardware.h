@@ -52,15 +52,15 @@
 #define     KP                      15 ///< Proportional constant divider 
 #define     KI                      35 ///< Integral constant divider 
 #define     VREF                    4800                  
-#define     sVREF                   (uint16_t) ( ( ( VREF * 4096.0 ) / 5000 ) + 0.5 )
+#define     sVREF                   (uint16_t) ( ( ( VREF * 4096.0 ) / 5935 ) + 0.5 )
 #define     CREF                    2000                  
 #define     sCREF                   (uint16_t) ( ( ( CREF * 4096.0 ) / (5000 * 2.5 * 5 ) ) + 0.5 )
 #define     VOC                     5400
-#define     sVOC                    (uint16_t) ( ( ( VOC * 4096.0 ) / 5000 ) + 0.5 )
+#define     sVOC                    (uint16_t) ( ( ( VOC * 4096.0 ) / 5935 ) + 0.5 )
 #define     VBATMIN                 2500
-#define     sVBATMIN                (uint16_t) ( ( ( VBATMIN * 4096.0 ) / 5000 ) + 0.5 )
+#define     sVBATMIN                (uint16_t) ( ( ( VBATMIN * 4096.0 ) / 5935 ) + 0.5 )
 #define     VBATMAX                 4150
-#define     sVBATMAX                (uint16_t) ( ( ( VBATMAX * 4096.0 ) / 5000 ) + 0.5 )
+#define     sVBATMAX                (uint16_t) ( ( ( VBATMAX * 4096.0 ) / 5935 ) + 0.5 )
 
 
 #define     COUNTER                 128
@@ -132,6 +132,7 @@ void UART_send_string(const char* st_pt);
 void UART_send_u16(uint16_t number); 
 void timing(void);
 void PAO(uint16_t pv_voltage, uint16_t pv_current, float* previous_power, char* previous_direction);
+void CV(uint16_t pv_voltage, uint16_t vref ,char* direction);
 
 
 #define     LINEBREAK               {UART_send_char(0xA); UART_send_char(0xD);}

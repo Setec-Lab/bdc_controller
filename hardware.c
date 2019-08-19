@@ -301,3 +301,19 @@ void PAO(uint16_t pv_voltage, uint16_t pv_current, float* power, char* direction
     }else if (new_power == *power) *direction = 0x08;
     *power = new_power;
 }
+
+void CV(uint16_t pv_voltage, uint16_t vref ,char* direction)
+{
+    if (pv_voltage > vref)
+    {
+        *direction = 0x06; //increase duty cycle, decrease voltage
+    }
+    else if (pv_voltage < vref)
+    {
+        *direction = 0x07; //decrease duty cycle, increase voltage
+    }
+    else if (pv_voltage == vref) 
+    {
+        *direction = 0x08;
+    }
+}

@@ -52,14 +52,20 @@ void __interrupt() ISR(void)
         TMR1IF = 0; //Clear timer1 interrupt flag
         vpv = read_ADC(V_BUS);
         ipv = read_ADC(I_PV);
-        ipv = abs(ipv - 2048);
+        ipv = (uint16_t) abs(ipv - 2048);
         if ( mppt )
-        if ( ipv > 20 ){
-            PAO(vpv, ipv, &power, &dir);
+        {
+//            if ( ipv > 20 )
+//            {
+//                //PAO(vpv, ipv, &power, &dir);
+//            }
+//            else DIRECTION(0x08);
+            
+            CV(vpv, sVREF, &dir);
             DIRECTION(dir);
-        }else DIRECTION(0x06);
+        }
         ilo = read_ADC(I_LOAD);
-        ilo = abs(ilo - 2048);
+        ilo = (uint16_t) abs(ilo - 2048);
         v50 = read_ADC(V_PDU_50V);
         i50 = read_ADC(I_PDU_50V);
         v33 = read_ADC(V_PDU_33V);
