@@ -141,6 +141,6 @@ void CV(uint16_t pv_voltage, uint16_t vref ,char* direction);
 #define  	DIRECTION(x)		    {UART_send_char(0x01); UART_send_char(0x03); UART_send_char(x);UART_send_char(0x03); UART_send_char(0x01);}
 #define  	START		            {UART_send_char(0x01); UART_send_char(0x03); UART_send_char(0x04); UART_send_char(0x03); UART_send_char(0x01);}
 #define  	STOP		            {UART_send_char(0x01); UART_send_char(0x03); UART_send_char(0x05); UART_send_char(0x03); UART_send_char(0x01);}
-#define     RESET_TIME()            { minute = 0; second = -1; } ///< Reset timers.
+#define     RESET_TIME()            { minute = 0; second = -1; count = COUNTER + 1;} ///< Reset timers.
 
 #endif /* HARDWARE_H*/
