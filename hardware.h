@@ -52,15 +52,15 @@
 #define     KP                      15 ///< Proportional constant divider 
 #define     KI                      35 ///< Integral constant divider 
 #define     VREF                    4800                  
-#define     sVREF                   (uint16_t) ( ( ( VREF * 4096.0 ) / 5935 ) + 0.5 )
+#define     sVREF                   (uint16_t) ( ( ( (float)VREF * 4096.0 ) / 5935.0 ) + 0.5 )
 #define     CREF                    2000                  
-#define     sCREF                   (uint16_t) ( ( ( CREF * 4096.0 ) / (5000 * 2.5 * 5 ) ) + 0.5 )
+#define     sCREF                   (uint16_t) ( ( ( (float)CREF * 4096.0 ) / (5000.0 * 2.5 * 5.0 ) ) + 0.5 )
 #define     VOC                     5400
-#define     sVOC                    (uint16_t) ( ( ( VOC * 4096.0 ) / 5935 ) + 0.5 )
+#define     sVOC                    (uint16_t) ( ( ( (float)VOC * 4096.0 ) / 5935.0 ) + 0.5 )
 #define     VBATMIN                 2500
-#define     sVBATMIN                (uint16_t) ( ( ( VBATMIN * 4096.0 ) / 5935 ) + 0.5 )
+#define     sVBATMIN                (uint16_t) ( ( ( (float)VBATMIN * 4096.0 ) / 5935.0 ) + 0.5 )
 #define     VBATMAX                 4150
-#define     sVBATMAX                (uint16_t) ( ( ( VBATMAX * 4096.0 ) / 5935 ) + 0.5 )
+#define     sVBATMAX                (uint16_t) ( ( ( (float)VBATMAX * 4096.0 ) / 5935.0 ) + 0.5 )
 
 
 #define     COUNTER                 128
