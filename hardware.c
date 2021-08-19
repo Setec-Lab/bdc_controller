@@ -79,7 +79,7 @@ void initialize()
     
     /**Initialize SPBRG register for required 
     baud rate and set BRGH for fast baud_rate**/
-    SP1BRGH = 0x00; 
+    SP1BRGH = 0x00;  //Set to 57.6 kbps
     SP1BRGL = 0x8A;    
     BRGH  = 1;  /// * for high baud_rate
     BRG16 = 1;  /// * for 16 bits timer
