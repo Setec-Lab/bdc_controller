@@ -34,7 +34,15 @@ ser.read_until(b'\x01\x02') #discard it
 # #ser.write(b'n')
 
 def data_fig():
+      ax1 = plt.subplot(211)
+      plt.plot(time_data,vbus_data)
+      plt.setp(ax1.get_xticklabels(), fontsize=6)     
+      # share x only
+      ax2 = plt.subplot(212, sharex=ax1)
       plt.plot(time_data,iloa_data)
+      # make these tick labels invisible
+      plt.setp(ax2.get_xticklabels(), visible=False)
+
 
 plt.ion()
 fig = plt.figure()
