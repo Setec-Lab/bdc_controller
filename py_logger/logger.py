@@ -5,7 +5,8 @@ import time
 import struct
 import numpy as np
 import matplotlib.pyplot as plt
-import string
+from drawnow import drawnow
+#import string
 
 pub_flag = 0
 date = datetime.datetime.now()
@@ -31,7 +32,17 @@ ser.read_until(b'\x01\x02') #discard it
 #       pub_flag = 1
 # ser.write(answer.encode())
 # #ser.write(b'n')
-data = []
+
+def data_fig():
+      plt.plot(time_data,iloa_data)
+
+plt.ion()
+fig = plt.figure()
+
+time_data = []
+vbus_data = []
+iloa_data = []
+
 while True:
       ser.read_until(b'\x01\x02')
       buffer = ser.read(2)
@@ -44,15 +55,24 @@ while True:
       ipva = float(int.from_bytes(buffer, "big"))
       buffer = ser.read(2)
       iloa = float(int.from_bytes(buffer, "big"))
-      if pub_flag == 1:
-            print(vbus,end='\t')
-            print(ipva,end='\t')
+      print("vbus = ",end=' ')
+      print(vbus,end='\t')
+      print("ipva = ",end=' ')
+      print(ipva,end='\t')
       date = datetime.datetime.now()
       time_stamp = date.strftime("%d/%m/%y %H:%M:%S")
       #data.append([time_stamp, speed, status ,pub_speed])
       with open(file_name,'a+',newline='') as f:
             writer = csv.writer(f, dialect='excel')
             writer.writerow([time_stamp, vbus, ipva, iloa])
-
+      ## PLOTS
+      vbus_data.append(vbus)
+      #vbus_data = vbus_data[-20:] 
+      iloa_data.append(iloa)
+      #iloa_data = iloa_data[-20:] 
+      time_float = (minutes / 60) + (seconds)
+      time_data.append(time_float)
+      #time_data = time_data[-20:] 
+      drawnow(data_fig)
 
 ser.close()
