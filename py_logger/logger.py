@@ -18,20 +18,10 @@ print(file_name)
 ser = serial.Serial('COM4', baudrate=57600, bytesize=8, parity='N', stopbits=1, timeout=1.5, xonxoff=0, rtscts=0)
 ser.close()
 ser.open()
-pub_flag = 1
-# start = b'\x00'
-# prev = b'\x00'
-# read = b'\x00'
 buffer = b'\x00'
 time.sleep(1)
 ser.write(b'\x73') #turn it on 
 ser.read_until(b'\x01\x02') #discard it
-# print(ser.readline().decode(),end='')
-# answer = input("")
-# if answer == 'y':
-#       pub_flag = 1
-# ser.write(answer.encode())
-# #ser.write(b'n')
 
 def data_fig():
       ax1 = plt.subplot(211)
