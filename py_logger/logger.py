@@ -42,6 +42,8 @@ time.sleep(1)
 # ser1.write(b'\x73') #turn it on
 ser2.read_until(b'\x01\x02') #discard it
 
+
+
 def data_fig():
       ax1 = plt.subplot(211)
       plt.plot(time_data,vbus_data)
@@ -96,7 +98,11 @@ while True:
       buffer1 = ser1.read(2)
       vbat1 = float(int.from_bytes(buffer1, "big"))
       buffer1 = ser1.read(2)
-      ibat1 = float(int.from_bytes(buffer1, "big"))
+      ibat1=0
+      if float(int.from_bytes(buffer1, "big")) > 60000:
+            ibat1 = 65535-float(int.from_bytes(buffer1, "big"))
+      else :
+            ibat1 = float(int.from_bytes(buffer1, "big"))
       print("vbat1 = ",end=' ')
       print(vbat1,end='\t')
       print("ibat1 = ",end=' ')
@@ -115,7 +121,11 @@ while True:
       buffer2 = ser2.read(2)
       vbat2 = float(int.from_bytes(buffer2, "big"))
       buffer2 = ser2.read(2)
-      ibat2 = float(int.from_bytes(buffer2, "big"))
+      ibat2=0
+      if float(int.from_bytes(buffer2, "big")) > 60000:
+            ibat2 = 65535-float(int.from_bytes(buffer2, "big"))
+      else:
+            float(int.from_bytes(buffer2, "big"))
       print("vbat2 = ",end=' ')
       print(vbat2,end='\t')
       print("ibat2 = ",end=' ')
@@ -135,15 +145,15 @@ while True:
       time_float = minutes + (seconds / 60)
       time_data.append(time_float)
       #time_data = time_data[-20:] 
-      #drawnow(data_fig)
+      drawnow(data_fig)
       
-## PLOTS bateria 1..
+## PLOTS bateria 1
       vbat1_data.append(vbat1)
       #vbus_data = vbus_data[-20:] 
       ibat1_data.append(ibat1)
       #iloa_data = iloa_data[-20:] 
       time_float = minutes + (seconds / 60)
-      time_data.append(time_float)
+   #   time_data.append(time_float)
       #time_data = time_data[-20:] 
       #drawnow(data_fig)
 
@@ -153,10 +163,10 @@ while True:
       ibat2_data.append(ibat2)
       #iloa_data = iloa_data[-20:] 
       time_float = minutes + (seconds / 60)
-      time_data.append(time_float)
+    #  time_data.append(time_float)
       #time_data = time_data[-20:] 
       #drawnow(data_fig)
-
+#65535-FFFF
 ser.close()
 ser1.close()
 ser2.close()
